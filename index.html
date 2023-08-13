@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Herramienta de Dictado</title>
+    <style>
+        .active-btn {
+    background-color: #FFC107 !important;
+    color: #51372e !important;
+    font-weight: bold;
+}
+
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+    position: relative; /* Hace que la barra esté fija en la posición especificada */
+    top: 0; /* Alinea la barra en la parte superior de la ventana */
+    left: 0; /* Alinea la barra en el lado izquierdo de la ventana */
+    width: 100%; /* Hace que la barra ocupe todo el ancho de la ventana */
+    background-color: #333; /* Color de fondo para la barra */
+    padding: 20px 0px; /* Espacio interno en la parte superior e inferior */
+    z-index: 1000; /* Asegura que la barra esté por encima de otros elementos */
+    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.3); /* Sombra para darle un poco de profundidad */
+}
+
+.navbar button {
+    margin: 0 10px; /* Espacio entre los botones */
+    background-color: #555; /* Color de fondo para los botones */
+    color: #fff; /* Color de texto para los botones */
+    border: none; /* Elimina el borde de los botones */
+    padding: 5px 15px; /* Espacio interno para los botones */
+    cursor: pointer; /* Cambia el cursor al pasar sobre los botones */
+    transition: background-color 0.3s; /* Transición suave al cambiar el color de fondo */
+}
+
+.navbar button:hover {
+    background-color: #777; /* Color de fondo al pasar el cursor sobre los botones */
+}
+
+.title{ 
+    padding-left: 20px;
+    color: #eee;
+ }
+
+        body {
+            background: #eee;
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            position: relative;
+        }
+
+        @keyframes fadeInFromTop {
+    0% {
+        opacity: 0;        /* Comienza completamente transparente */
+        transform: translateY(-50px); /* Comienza 50px arriba de su posición original */
+    }
+    100% {
+        opacity: 1;        /* Termina completamente opaco */
+        transform: translateY(0); /* Termina en su posición original */
+    }
+}
+
+.controls{
+}
+
+
+        .contenedor {
+            background: #fff;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        .animate-in{
+            animation-name: fadeInFromTop; /* Nombre de la animación */
+    animation-duration: 1s;       /* Duración de la animación */
+    animation-timing-function: ease-out; /* Función de tiempo para un efecto suave */
+    animation-fill-mode: forwards; /* Mantener el estado final de la animación */
+        }
+
+        .animate-delay-1{
+            animation-delay: .2s;
+        }
+
+        .animate-delay-2{
+            animation-delay: .4s;
+        }
+
+        .animate-delay-3{
+            animation-delay: .6s;
+        }
+
+        .animate-delay-4{
+            animation-delay: .8s;
+        }
+
+        .animate-delay-5{
+            animation-delay: 1s;
+        }
+
+        .viewcontainer{
+            background: #eee;
+    width: 100%;
+    height: 100%;
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+        }
+
+        button {
+            background-color: #007BFF;
+            color: #fff;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+            transition: transform 0.3s;
+        }
+
+        .selected {
+            background-color: #0056b3;
+        }
+
+        #chainset, input, select {
+            width: 80%;
+            padding: 15px;
+            font-size: 1.5em;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        #currentText {
+            font-weight: bold;
+            margin-bottom: 15px;
+            font-size: 5em;
+            text-transform: uppercase;
+
+            position: absolute;
+            top: 60px;
+/*            left: 10px;*/
+            font-weight: bold;
+            background-color: rgba(255, 255, 255, 0.8);
+            padding: 10px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        #counter {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            font-size: 2em;
+            font-weight: bold;
+            background-color: rgba(255, 255, 255, 0.8);
+            padding: 10px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.05);
+            }
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        .pulsing {
+            animation: pulse 1s infinite;
+        }
+
+        .toggle {
+            display: inline-block;
+            cursor: pointer;
+            padding: 5px 10px;
+            background-color: #ccc;
+            border-radius: 5px;
+            margin: 5px;
+        }
+
+        .toggle.active {
+            background-color: #007BFF;
+            color: #fff;
+        }
+
+        #contenedorDictado{
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        #contenedorEvaluacion{
+            display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+        }
+        .o-0{
+            opacity: 0;
+        }
+
+        .result-calculos{
+            text-align: center;
+            font-size: 3em;
+            margin-bottom: 10px;
+        }
+        .result-calculos span{
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="navbar o-0 animate-in animate-delay-1">
+        <div class="title">
+            DevCrown - Evaluatión Tools
+        </div>
+    <div class="controls">
+        <button id="btnDictado">Asistente de dictado</button>
+    <button id="btnEvaluacion">Asistente de Evaluación</button>
+    </div>
+</div>
+
+<div class="viewcontainer">
+    <div id="contenedorDictado" style="display:none;">
+    <div id="currentText" class="o-0 animate-in animate-delay-5"># - </div>
+    <div class="contenedor o-0 animate-in animate-delay-1">
+        <input id="chainset" class="inputBox" name="chainset" placeholder="Introduce el texto aquí"/>
+        <button id="triggerDictation" class="">Iniciar dictado</button>
+        <button id="stopDictation">Detener dictado</button>
+        <button id="restartDictation">Reiniciar dictado</button>
+        <div>
+            <button id="lento" class="speed">Lento</button>
+            <button id="medio" class="speed selected">Medio</button>
+            <button id="rapido" class="speed">Rápido</button>
+            <button id="ultraRapido" class="speed">Ultra Rápido</button>
+        </div>
+        <div>
+            <span class="toggle" id="toggleDictationMode">MODO SOLO LETRA</span>
+        </div>
+    </div>
+    <div id="counter" class="o-0 animate-in animate-delay-3">0 - 0</div>
+</div>
+
+<div id="contenedorEvaluacion" style="display:none;">
+    <div class="contenedor animate-in">
+        <div class="block o-0 animate-in animate-delay-1">
+            <label>Cantidad de preguntas:</label>
+    <input type="number" id="cantidadPreguntas" value="130" min="1">
+        </div>
+    
+    <div class="block o-0 animate-in animate-delay-2">
+    <label>Calificación máxima:</label>
+    <select id="calificacionMaxima">
+        <option value="10">0-10</option>
+        <option value="100">0-100</option>
+    </select>
+    </div>
+    <div class="block o-0 animate-in animate-delay-3">
+    <label>Respuestas correctas:</label>
+    <input type="number" id="respuestasCorrectas" min="0" value="130">
+    </div>
+    <div class="block o-0 animate-in animate-delay-4">
+    <div class="result-calculos">Resultado: <span id="resultado">10</span></div>
+    </div>
+    <div class="block o-0 animate-in animate-delay-5">
+    <button id="btnLimpiar">Limpiar Respuestas Correctas</button>
+    <button id="btnReiniciar">Reiniciar</button>
+</div>
+</div>
+</div>
+</div> 
+    
+<script>
+
+    document.getElementById('btnDictado').addEventListener('click', function() {
+    document.getElementById('contenedorDictado').style.display = 'flex';
+    document.getElementById('contenedorEvaluacion').style.display = 'none';
+    this.classList.add('active-btn');
+    document.getElementById('btnEvaluacion').classList.remove('active-btn');
+});
+
+document.getElementById('btnEvaluacion').addEventListener('click', function() {
+    document.getElementById('contenedorDictado').style.display = 'none';
+    document.getElementById('contenedorEvaluacion').style.display = 'flex';
+     this.classList.add('active-btn');
+    document.getElementById('btnDictado').classList.remove('active-btn');
+});
+
+    document.getElementById('respuestasCorrectas').addEventListener('input', function() {
+    const totalPreguntas = parseFloat(document.getElementById('cantidadPreguntas').value);
+    const califMaxima = parseFloat(document.getElementById('calificacionMaxima').value);
+    const respuestasCorrectas = parseFloat(this.value);
+
+    const resultado = (respuestasCorrectas / totalPreguntas) * califMaxima;
+    document.getElementById('resultado').textContent = resultado.toFixed(2);
+});
+
+document.getElementById('btnLimpiar').addEventListener('click', function() {
+    document.getElementById('respuestasCorrectas').value = '';
+    document.getElementById('resultado').textContent = '0';
+});
+
+document.getElementById('btnReiniciar').addEventListener('click', function() {
+    document.getElementById('cantidadPreguntas').value = '130';
+    document.getElementById('calificacionMaxima').value = '10';
+    document.getElementById('respuestasCorrectas').value = '';
+    document.getElementById('resultado').textContent = '0';
+});
+
+
+    function numeroATexto(num) {
+        const numeros = ["cero", "uno", "dos", "tres", "cuatro", "cinco", "seis", "siete", "ocho", "nueve", "diez", "once", "doce", "trece", "catorce", "quince"];
+        if (num <= 15) {
+            return numeros[num];
+        }
+        return num.toString();
+    }
+
+    let indice = 1;
+    let isPaused = false;
+    let isDictating = false;
+    let delay = 1500; // Por default está en medio
+    let soloLetra = false;
+
+    document.getElementById('toggleDictationMode').addEventListener('click', function() {
+        soloLetra = !soloLetra;
+        if (soloLetra) {
+            this.classList.add('active');
+        } else {
+            this.classList.remove('active');
+        }
+    });
+
+    function dictar(cadena) {
+    if (isPaused || !isDictating) return;
+
+    let arreglo = Array.from(cadena.toLowerCase());
+    let objeto = {};
+
+    for (let i = 0; i < arreglo.length; i++) {
+        objeto[i + 1] = arreglo[i];
+    }
+
+    if (indice <= Object.keys(objeto).length) {
+        document.getElementById('counter').textContent = `${indice} - ${arreglo.length}`;
+
+        let msj = soloLetra ? `${objeto[indice]}` : `${numeroATexto(indice)} "${objeto[indice]}"`;
+        let mensaje = new SpeechSynthesisUtterance(msj);
+        document.getElementById('currentText').textContent = `#${indice} - ${objeto[indice]}`;
+        window.speechSynthesis.speak(mensaje);
+        mensaje.onend = function() {
+            indice++;
+            setTimeout(() => dictar(cadena), delay);
+        };
+    }
+}
+
+
+
+    document.getElementById('triggerDictation').addEventListener('click', function() {
+        if (!isDictating) {
+            isDictating = true;
+            let cadena = document.getElementById('chainset').value;
+            dictar(cadena);
+            this.textContent = "Pausar dictado";
+        } else {
+            isPaused = !isPaused;
+            if (isPaused) {
+                window.speechSynthesis.pause();
+                this.textContent = "Reanudar dictado";
+            } else {
+                window.speechSynthesis.resume();
+                this.textContent = "Pausar dictado";
+            }
+        }
+    });
+
+    document.getElementById('stopDictation').addEventListener('click', function() {
+        isDictating = false;
+        window.speechSynthesis.cancel();
+        document.getElementById('triggerDictation').textContent = "Iniciar dictado";
+    });
+
+    document.getElementById('restartDictation').addEventListener('click', function() {
+        isDictating = true;
+        isPaused = false;
+        indice = 1;
+        window.speechSynthesis.cancel();
+        let cadena = document.getElementById('chainset').value;
+        dictar(cadena);
+        document.getElementById('triggerDictation').textContent = "Pausar dictado";
+    });
+
+    document.querySelectorAll('.speed').forEach(button => {
+        button.addEventListener('click', function() {
+            document.querySelectorAll('.speed').forEach(btn => btn.classList.remove('selected'));
+            this.classList.add('selected');
+            switch (this.id) {
+                case 'lento':
+                    delay = 3000;
+                    break;
+                case 'medio':
+                    delay = 1500;
+                    break;
+                case 'rapido':
+                    delay = 800;
+                    break;
+                case 'ultraRapido':
+                    delay = 250;
+                    break;
+            }
+        });
+    });
+</script>
+</body>
+</html>
